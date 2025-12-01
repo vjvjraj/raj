@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain Ticket Booking</title>
+    <style>
+        :root {
+            --primary: #6366f1; /* Indigo */
+            --primary-hover: #4f46e5;
+            --bg-gradient: linear-gradient(135deg, #e0e7ff 0%, #f3f4f6 100%);
+            --surface: #ffffff;
+            --text-main: #1f2937;
+            --text-secondary: #6b7280;
+            --accent-success: #10b981;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        body { 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            background: var(--bg-gradient); 
+            color: var(--text-main); 
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container { 
+            width: 100%;
+            max-width: 480px; 
+            background: var(--surface); 
+            padding: 2.5rem; 
+            border-radius: 24px; 
+            box-shadow: var(--shadow);
+            transition: transform 0.2s;
+            position: relative;
+        }
+
+        h1 { 
+            margin: 0; 
+            font-size: 1.75rem; 
+            text-align: center; 
+            color: var(--primary);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            margin-top: 0.5rem;
+        }
+        
+        .form-group { margin-bottom: 1.25rem; }
+        
+        label { 
+            display: block; 
+            margin-bottom: 0.5rem; 
+            font-weight: 600; 
+            font-size: 0.9rem; 
+            color: var(--text-main);
+        }
+        
+        input { 
+            width: 100%; 
+            padding: 12px 16px; 
+            border: 2px solid #e5e7eb; 
+            border-radius: 12px; 
+            font-size: 1rem; 
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .row-inputs {
+            display: flex;
+            gap: 15px;
+        }
+        
+        button { 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            padding: 14px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-size: 1rem; 
+            font-weight: 600;
+            width: 100%; 
+            transition: background 0.2s, transform 0.1s; 
+            box-shadow: 0 4px 6px rgba(99, 102, 241, 0.3);
+        }
+
+        button:hover { 
+            background: var(--primary-hover); 
+            transform: translateY(-1px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled { 
+            background: #cbd5e1; 
+            cursor: not-allowed; 
+            box-shadow: none;
+            transform: none;
+        }
+
+        .wallet-btn { 
+            background: #3b82f6; 
+            margin-bottom: 1.5rem;
+        }
+
+        #walletStatus {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-top: -10px;
+            margin-bottom: 20px;
+        }
+        
+        /* Receipt Card Styling */
+        #receipt { 
+            display: none; 
+            margin-top: 2rem; 
+            border: none;
+            padding: 1.5rem; 
+            background: #f0fdf4; 
+            border-radius: 16px; 
+            position: relative;
+            overflow: hidden;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        #receipt::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent-success);
+        }
+
+        .receipt-header {
+            display: flex;
+            align-items: center;
+            color: var(--accent-success);
+            margin-bottom: 1rem;
+        }
+
+        .receipt-header h3 {
+            margin: 0 0 0 10px;
+            font-size: 1.1rem;
+        }
+
+        .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .label-text {
+            color: var(--text-secondary);
+        }
+        
+        .divider {
+            height: 1px;
+            background: #bbf7d0;
+            margin: 10px 0;
+            border: none;
+        }
+
+        .hash-container {
+            margin-top: 15px;
+        }
+        
+        .hash-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .hash-box { 
+            background: white; 
+            padding: 12px; 
+            border: 1px solid #bbf7d0; 
+            border-radius: 8px;
+            font-family: 'Courier New', monospace; 
+            word-break: break-all; 
+            color: #15803d; 
+            font-weight: 600; 
+            font-size: 0.85rem;
+        }
+        
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>✈️ Travel Safe</h1>
+        <p class="subtitle">Secure Blockchain Ticketing</p>
+
+        <button id="connectBtn" class="wallet-btn" onclick="simulateConnectWallet()">👛 Connect Wallet</button>
+        <p id="walletStatus">Status: Disconnected</p>
+
+        <form id="ticketForm" style="display:none;">
+            <!-- Identity Details -->
+            <div class="form-group">
+                <label for="pName">Passenger Name</label>
+                <input type="text" id="pName" placeholder="e.g. Jane Doe" required>
+            </div>
+            
+            <div class="row-inputs">
+                <div class="form-group" style="flex:1">
+                    <label for="pAadhaar">Aadhaar</label>
+                    <input type="text" id="pAadhaar" placeholder="12-digit UID" required>
+                </div>
+                <div class="form-group" style="flex:1">
+                    <label for="pPassport">Passport</label>
+                    <input type="text" id="pPassport" placeholder="Passport No" required>
+                </div>
+            </div>
+
+            <!-- Journey Details -->
+            <div class="row-inputs">
+                <div class="form-group" style="flex:1">
+                    <label for="pFrom">From</label>
+                    <input type="text" id="pFrom" placeholder="City" required>
+                </div>
+                <div class="form-group" style="flex:1">
+                    <label for="pTo">To</label>
+                    <input type="text" id="pTo" placeholder="City" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="pDate">Date of Journey</label>
+                <input type="date" id="pDate" required>
+            </div>
+
+            <button type="submit" id="mintBtn">generate Ticket</button>
+        </form>
+
+        <div id="receipt">
+            <div class="receipt-header">
+                <span style="font-size: 1.5rem;">✅</span>
+                <h3>Booking Confirmed</h3>
+            </div>
+            
+            <div class="receipt-row">
+                <span class="label-text">Passenger:</span>
+                <strong id="rName"></strong>
+            </div>
+            
+            <hr class="divider">
+
+            <div class="receipt-row">
+                <span class="label-text">From:</span>
+                <strong id="rFrom"></strong>
+            </div>
+            <div class="receipt-row">
+                <span class="label-text">To:</span>
+                <strong id="rTo"></strong>
+            </div>
+            <div class="receipt-row">
+                <span class="label-text">Date:</span>
+                <strong id="rDate"></strong>
+            </div>
+
+            <div class="hash-container">
+                <span class="hash-label">Blockchain Ticket ID</span>
+                <div class="hash-box" id="rHash"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- LOGIC ---
+
+        function simulateConnectWallet() {
+            const btn = document.getElementById('connectBtn');
+            const status = document.getElementById('walletStatus');
+            
+            btn.innerHTML = '<span class="spinner"></span> Connecting...';
+            btn.disabled = true;
+
+            // Simulate network delay
+            setTimeout(() => {
+                const fakeAddress = "0x71C...39A2";
+                status.innerText = `Connected: ${fakeAddress}`;
+                status.style.color = "#10b981"; // Green
+                btn.style.display = 'none';
+                
+                // Show form with animation
+                const form = document.getElementById('ticketForm');
+                form.style.display = 'block';
+                form.style.animation = "slideUp 0.3s ease-out";
+            }, 1000);
+        }
+
+        document.getElementById('ticketForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = document.getElementById('mintBtn');
+            const originalText = btn.innerHTML;
+            
+            // Get Values
+            const name = document.getElementById('pName').value;
+            const aadhaar = document.getElementById('pAadhaar').value;
+            const fromLoc = document.getElementById('pFrom').value;
+            const toLoc = document.getElementById('pTo').value;
+            const date = document.getElementById('pDate').value;
+            
+            // 1. Simulate Signing
+            btn.innerHTML = '<span class="spinner"></span> Signing Transaction...';
+            btn.disabled = true;
+
+            await wait(1500);
+
+            // 2. Simulate Mining
+            btn.innerHTML = '<span class="spinner"></span> Mining Block...';
+            
+            await wait(2000);
+
+            // 3. Generate Fake Hash based on input (Mocking Solidity keccak256)
+            const timestamp = new Date().getTime();
+            const mockHash = generateMockHash(name + aadhaar + fromLoc + toLoc + timestamp);
+
+            // 4. Show Receipt
+            document.getElementById('receipt').style.display = 'block';
+            document.getElementById('rName').innerText = name;
+            document.getElementById('rFrom').innerText = fromLoc;
+            document.getElementById('rTo').innerText = toLoc;
+            document.getElementById('rDate').innerText = date;
+            document.getElementById('rHash').innerText = mockHash;
+
+            btn.innerHTML = "Ticket generated!";
+            btn.disabled = false;
+        });
+
+        // Helper to pause execution
+        function wait(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Helper to generate a hex string that LOOKS like a blockchain hash
+        function generateMockHash(seed) {
+            // Simple JS implementation to make it look random but consistent
+            let hash = "0x";
+            const chars = "0123456789abcdef";
+            
+            // Generate 64 hex characters (32 bytes)
+            for (let i = 0; i < 64; i++) {
+                hash += chars[Math.floor(Math.random() * 16)];
+            }
+            return hash;
+        }
+    </script>
+</body>
+</html>
+
+
