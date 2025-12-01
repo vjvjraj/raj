@@ -3,388 +3,913 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blockchain Ticket Booking</title>
+    <title>Travel Safe | Blockchain Ticketing</title>
+    <!-- Import Poppins Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         :root {
-            --primary: #6366f1; /* Indigo */
-            --primary-hover: #4f46e5;
-            --bg-gradient: linear-gradient(135deg, #e0e7ff 0%, #f3f4f6 100%);
-            --surface: #ffffff;
-            --text-main: #1f2937;
-            --text-secondary: #6b7280;
-            --accent-success: #10b981;
-            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --accent: #ec4899;
+            --success: #10b981;
+            --error: #ef4444;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --input-bg: rgba(241, 245, 249, 0.5);
         }
 
-        body { 
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
-            background: var(--bg-gradient); 
-            color: var(--text-main); 
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #0f172a; /* Fallback */
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+            color: var(--text-main);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0;
             padding: 20px;
-        }
-
-        .container { 
-            width: 100%;
-            max-width: 480px; 
-            background: var(--surface); 
-            padding: 2.5rem; 
-            border-radius: 24px; 
-            box-shadow: var(--shadow);
-            transition: transform 0.2s;
+            overflow-x: hidden;
             position: relative;
         }
 
-        h1 { 
-            margin: 0; 
-            font-size: 1.75rem; 
-            text-align: center; 
-            color: var(--primary);
+        /* Animated Background Orbs */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.6;
+            animation: float 10s infinite ease-in-out;
+        }
+        .orb-1 { width: 300px; height: 300px; background: #6366f1; top: -50px; left: -50px; animation-delay: 0s; }
+        .orb-2 { width: 400px; height: 400px; background: #ec4899; bottom: -100px; right: -100px; animation-delay: -5s; }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(30px, 50px); }
         }
 
-        .subtitle {
+        .app-container {
+            width: 100%;
+            max-width: 520px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 3rem;
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.25),
+                0 0 0 1px rgba(255,255,255,0.1) inset;
+            position: relative;
+            z-index: 10;
+            transition: height 0.3s ease;
+        }
+
+        /* Headers */
+        h1 {
+            margin: 0;
             text-align: center;
-            color: var(--text-secondary);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: var(--text-sub);
             font-size: 0.9rem;
+            margin-bottom: 2.5rem;
+            margin-top: 5px;
+            font-weight: 400;
+        }
+
+        /* Wallet Section */
+        .wallet-section {
+            text-align: center;
             margin-bottom: 2rem;
-            margin-top: 0.5rem;
-        }
-        
-        .form-group { margin-bottom: 1.25rem; }
-        
-        label { 
-            display: block; 
-            margin-bottom: 0.5rem; 
-            font-weight: 600; 
-            font-size: 0.9rem; 
-            color: var(--text-main);
-        }
-        
-        input { 
-            width: 100%; 
-            padding: 12px 16px; 
-            border: 2px solid #e5e7eb; 
-            border-radius: 12px; 
-            font-size: 1rem; 
-            box-sizing: border-box;
-            transition: all 0.3s ease;
-            outline: none;
         }
 
-        input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-        }
-
-        .row-inputs {
-            display: flex;
-            gap: 15px;
-        }
-        
-        button { 
-            background: var(--primary); 
-            color: white; 
-            border: none; 
-            padding: 14px; 
-            border-radius: 12px; 
-            cursor: pointer; 
-            font-size: 1rem; 
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 16px;
+            font-size: 1rem;
             font-weight: 600;
-            width: 100%; 
-            transition: background 0.2s, transform 0.1s; 
-            box-shadow: 0 4px 6px rgba(99, 102, 241, 0.3);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-family: 'Poppins', sans-serif;
+            position: relative;
+            overflow: hidden;
         }
 
-        button:hover { 
-            background: var(--primary-hover); 
-            transform: translateY(-1px);
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.4);
+            filter: brightness(1.1);
         }
         
-        button:active {
-            transform: translateY(0);
-        }
+        .btn-primary:active { transform: translateY(0); }
 
-        button:disabled { 
+        .btn-primary:disabled { 
             background: #cbd5e1; 
             cursor: not-allowed; 
-            box-shadow: none;
-            transform: none;
+            transform: none; 
+            box-shadow: none; 
+            filter: grayscale(1);
+        }
+        
+        /* Secondary state for "Book Another" */
+        .btn-secondary {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .btn-secondary:hover {
+            background: #f8fafc;
+            transform: translateY(-2px);
         }
 
-        .wallet-btn { 
-            background: #3b82f6; 
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 15px;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.5);
+            color: var(--text-sub);
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+
+        .status-badge.connected {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border-color: rgba(16, 185, 129, 0.2);
+            animation: pulse-green 2s infinite;
+        }
+
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* Modern Floating Input Fields */
+        #bookingForm {
+            display: none;
+            animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .form-group {
+            position: relative;
             margin-bottom: 1.5rem;
         }
 
-        #walletStatus {
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            margin-top: -10px;
-            margin-bottom: 20px;
-        }
-        
-        /* Receipt Card Styling */
-        #receipt { 
-            display: none; 
-            margin-top: 2rem; 
-            border: none;
-            padding: 1.5rem; 
-            background: #f0fdf4; 
-            border-radius: 16px; 
+        .input-wrapper {
             position: relative;
-            overflow: hidden;
-            animation: slideUp 0.5s ease-out;
         }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        input {
+            width: 100%;
+            padding: 16px 16px 6px 16px; /* Extra top padding for label */
+            height: 56px;
+            background: var(--input-bg);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-main);
+            box-sizing: border-box;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            background: #fff;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
         }
         
-        #receipt::before {
-            content: "";
+        input:not(:placeholder-shown) + label,
+        input:focus + label {
+            top: 8px;
+            font-size: 0.75rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .form-group label {
             position: absolute;
-            top: 0;
+            left: 16px;
+            top: 16px;
+            font-size: 1rem;
+            color: var(--text-sub);
+            pointer-events: none;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            font-weight: 500;
+        }
+
+        /* Validation States */
+        input.error { border-color: var(--error); background: #fef2f2; }
+        input.success { border-color: var(--success); background: #f0fdf4; }
+
+        input.error + label { color: var(--error); }
+        input.success + label { color: var(--success); }
+
+        .error-msg {
+            color: var(--error);
+            font-size: 0.75rem;
+            margin-top: 4px;
+            margin-left: 4px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .row {
+            display: flex;
+            gap: 12px;
+        }
+        .col { flex: 1; }
+
+        /* Modern Swap Button */
+        .swap-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+        }
+        .swap-btn {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            color: var(--primary);
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .swap-btn:hover { 
+            background: var(--primary); 
+            color: white;
+            transform: rotate(180deg) scale(1.1); 
+            box-shadow: 0 4px 8px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Boarding Pass Style Receipt */
+        #receipt {
+            display: none;
+            margin-top: 2rem;
+            background: white;
+            border-radius: 16px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        /* Dashed Line / Tear off effect */
+        #receipt::after {
+            content: '';
+            position: absolute;
+            bottom: 80px;
             left: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--accent-success);
+            width: 100%;
+            height: 2px;
+            background-image: linear-gradient(to right, #cbd5e1 50%, transparent 50%);
+            background-size: 12px 2px;
+        }
+        
+        /* Cutouts */
+        #receipt::before {
+            content: '';
+            position: absolute;
+            bottom: 70px;
+            left: -10px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--input-bg); /* Match parent visual bg roughly, tricky with glass */
+            box-shadow: inset -2px 0 3px rgba(0,0,0,0.05);
+            z-index: 2;
+        }
+        .notch-right {
+            position: absolute;
+            bottom: 70px;
+            right: -10px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #f0f4f8; /* Approximation for visual break */
+            box-shadow: inset 2px 0 3px rgba(0,0,0,0.05);
+            z-index: 2;
         }
 
         .receipt-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            padding: 20px;
+            color: white;
             display: flex;
             align-items: center;
-            color: var(--accent-success);
-            margin-bottom: 1rem;
+            justify-content: space-between;
         }
-
-        .receipt-header h3 {
-            margin: 0 0 0 10px;
+        
+        .receipt-header h2 {
+            margin: 0;
             font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .receipt-row {
+        .receipt-body {
+            padding: 20px;
+        }
+
+        .flight-path {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 0.95rem;
-        }
-
-        .label-text {
-            color: var(--text-secondary);
+            align-items: center;
+            margin-bottom: 20px;
         }
         
-        .divider {
-            height: 1px;
-            background: #bbf7d0;
-            margin: 10px 0;
-            border: none;
+        .city-code {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
         }
-
-        .hash-container {
-            margin-top: 15px;
-        }
-        
-        .hash-label {
-            font-size: 0.8rem;
+        .city-name {
+            font-size: 0.75rem;
+            color: var(--text-sub);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            color: var(--text-secondary);
-            font-weight: bold;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .hash-box { 
-            background: white; 
-            padding: 12px; 
-            border: 1px solid #bbf7d0; 
-            border-radius: 8px;
-            font-family: 'Courier New', monospace; 
-            word-break: break-all; 
-            color: #15803d; 
-            font-weight: 600; 
-            font-size: 0.85rem;
         }
         
-        /* Loading Spinner */
+        .flight-icon {
+            color: var(--primary);
+            font-size: 1.5rem;
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+        .flight-icon::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            right: 10px;
+            height: 2px;
+            background: #e2e8f0;
+            z-index: -1;
+            transform: translateY(-50%);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .info-item label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: var(--text-sub);
+            letter-spacing: 0.5px;
+            display: block;
+            margin-bottom: 2px;
+        }
+        .info-item strong {
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        .receipt-footer {
+            background: #f8fafc;
+            padding: 15px 20px;
+            border-top: 1px dashed #e2e8f0;
+        }
+
+        .hash-box {
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            color: var(--text-sub);
+            font-size: 0.7rem;
+            background: white;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .hash-icon { color: var(--success); font-size: 1.2rem; }
+
+        /* Spinner */
         .spinner {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
+            width: 20px;
+            height: 20px;
             border: 2px solid rgba(255,255,255,0.3);
             border-radius: 50%;
             border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 8px;
+            animation: spin 0.8s linear infinite;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes slideUpFade { 
+            from { opacity: 0; transform: translateY(20px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        /* Adjust datalist for chrome */
+        input::-webkit-calendar-picker-indicator {
+            opacity: 0; /* Hide default arrow, we want clean inputs */
+        }
+        
+        /* Show calendar picker only for date input */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            opacity: 1;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>✈️ Travel Safe</h1>
-        <p class="subtitle">Secure Blockchain Ticketing</p>
+    <!-- Background Elements -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
 
-        <button id="connectBtn" class="wallet-btn" onclick="simulateConnectWallet()">👛 Connect Wallet</button>
-        <p id="walletStatus">Status: Disconnected</p>
+    <div class="app-container">
+        <h1>Travel Safe</h1>
+        <p class="subtitle">Decentralized Identity Ticketing</p>
 
-        <form id="ticketForm" style="display:none;">
-            <!-- Identity Details -->
+        <!-- Wallet Connection -->
+        <div class="wallet-section">
+            <button id="connectBtn" class="btn btn-primary" onclick="connectWallet()">
+                <i class="ph ph-wallet" style="font-size: 1.2rem;"></i>
+                Connect Wallet
+            </button>
+            <div id="walletStatus" class="status-badge">
+                <div style="width: 8px; height: 8px; background: currentColor; border-radius: 50%;"></div>
+                Wallet Not Connected
+            </div>
+        </div>
+
+        <!-- Booking Form -->
+        <form id="bookingForm" novalidate>
+            <!-- Identity Section -->
             <div class="form-group">
-                <label for="pName">Passenger Name</label>
-                <input type="text" id="pName" placeholder="e.g. Jane Doe" required>
-            </div>
-            
-            <div class="row-inputs">
-                <div class="form-group" style="flex:1">
-                    <label for="pAadhaar">Aadhaar</label>
-                    <input type="text" id="pAadhaar" placeholder="12-digit UID" required>
+                <div class="input-wrapper">
+                    <!-- Placeholder must be space for float label logic -->
+                    <input type="text" id="name" placeholder=" " required>
+                    <label for="name">Passenger Name</label>
                 </div>
-                <div class="form-group" style="flex:1">
-                    <label for="pPassport">Passport</label>
-                    <input type="text" id="pPassport" placeholder="Passport No" required>
+                <div class="error-msg" id="err-name">Name must be at least 3 characters.</div>
+            </div>
+
+            <div class="row">
+                <div class="col form-group">
+                    <div class="input-wrapper">
+                        <input type="text" id="aadhaar" placeholder=" " maxlength="14" required>
+                        <label for="aadhaar">Aadhaar No</label>
+                    </div>
+                    <div class="error-msg" id="err-aadhaar">Invalid Format (12 Digits).</div>
+                </div>
+                <div class="col form-group">
+                    <div class="input-wrapper">
+                        <input type="text" id="passport" placeholder=" " maxlength="8" required>
+                        <label for="passport">Passport No</label>
+                    </div>
+                    <div class="error-msg" id="err-passport">Invalid Format.</div>
                 </div>
             </div>
 
-            <!-- Journey Details -->
-            <div class="row-inputs">
-                <div class="form-group" style="flex:1">
-                    <label for="pFrom">From</label>
-                    <input type="text" id="pFrom" placeholder="City" required>
+            <!-- Journey Section -->
+            <div class="row" style="align-items: flex-start;">
+                <div class="col form-group">
+                    <div class="input-wrapper">
+                        <input list="airports" id="fromLoc" placeholder=" " required>
+                        <label for="fromLoc">From</label>
+                    </div>
+                    <div class="error-msg" id="err-from">Required.</div>
                 </div>
-                <div class="form-group" style="flex:1">
-                    <label for="pTo">To</label>
-                    <input type="text" id="pTo" placeholder="City" required>
+                
+                <div class="swap-container">
+                     <button type="button" class="swap-btn" onclick="swapLocations()" title="Swap Locations">
+                        <i class="ph ph-arrows-left-right"></i>
+                     </button>
+                </div>
+
+                <div class="col form-group">
+                    <div class="input-wrapper">
+                        <input list="airports" id="toLoc" placeholder=" " required>
+                        <label for="toLoc">To</label>
+                    </div>
+                    <div class="error-msg" id="err-to">Required.</div>
                 </div>
             </div>
-            
+
+            <datalist id="airports">
+                <!-- Populated by JS -->
+            </datalist>
+
             <div class="form-group">
-                <label for="pDate">Date of Journey</label>
-                <input type="date" id="pDate" required>
+                <div class="input-wrapper">
+                    <input type="date" id="date" placeholder=" " required>
+                    <label for="date">Date of Journey</label>
+                </div>
+                <div class="error-msg" id="err-date">Invalid Date.</div>
             </div>
 
-            <button type="submit" id="mintBtn">generate Ticket</button>
+            <button type="submit" id="mintBtn" class="btn btn-primary">
+                <i class="ph ph-ticket" style="font-size: 1.2rem;"></i>
+                Mint Ticket on Blockchain
+            </button>
         </form>
 
+        <!-- Modern Receipt -->
         <div id="receipt">
+            <div class="notch-right"></div>
             <div class="receipt-header">
-                <span style="font-size: 1.5rem;">✅</span>
-                <h3>Booking Confirmed</h3>
+                <h2><i class="ph-fill ph-check-circle"></i> Confirmed</h2>
+                <i class="ph ph-airplane-tilt" style="font-size: 1.5rem; opacity: 0.8;"></i>
             </div>
             
-            <div class="receipt-row">
-                <span class="label-text">Passenger:</span>
-                <strong id="rName"></strong>
-            </div>
-            
-            <hr class="divider">
+            <div class="receipt-body">
+                <div class="flight-path">
+                    <div style="text-align: left;">
+                        <div class="city-code" id="rFromCode">DEL</div>
+                        <div class="city-name" id="rFromName">New Delhi</div>
+                    </div>
+                    <div class="flight-icon">
+                        <i class="ph-fill ph-airplane"></i>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="city-code" id="rToCode">BOM</div>
+                        <div class="city-name" id="rToName">Mumbai</div>
+                    </div>
+                </div>
 
-            <div class="receipt-row">
-                <span class="label-text">From:</span>
-                <strong id="rFrom"></strong>
-            </div>
-            <div class="receipt-row">
-                <span class="label-text">To:</span>
-                <strong id="rTo"></strong>
-            </div>
-            <div class="receipt-row">
-                <span class="label-text">Date:</span>
-                <strong id="rDate"></strong>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>Passenger</label>
+                        <strong id="rName">John Doe</strong>
+                    </div>
+                    <div class="info-item">
+                        <label>Date</label>
+                        <strong id="rDate">2023-12-25</strong>
+                    </div>
+                </div>
             </div>
 
-            <div class="hash-container">
-                <span class="hash-label">Blockchain Ticket ID</span>
-                <div class="hash-box" id="rHash"></div>
+            <div class="receipt-footer">
+                <div class="hash-box">
+                    <i class="ph-fill ph-shield-check hash-icon"></i>
+                    <div>
+                        <div style="font-size: 0.6rem; text-transform: uppercase; font-weight: bold; margin-bottom: 2px;">Immutable Proof Hash</div>
+                        <span id="rHash">0x7d...3f2a</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // --- LOGIC ---
+        // --- 0. Initialize Storage for Booked Data ---
+        const bookedPassengers = new Set();
+        const bookedAadhaar = new Set();
+        const bookedPassport = new Set();
+        
+        // Track state for reset functionality
+        let isBookingComplete = false;
 
-        function simulateConnectWallet() {
-            const btn = document.getElementById('connectBtn');
-            const status = document.getElementById('walletStatus');
-            
-            btn.innerHTML = '<span class="spinner"></span> Connecting...';
-            btn.disabled = true;
+        // --- 0.1 Airport Data ---
+        const airportList = [
+            "Agartala (IXA)", "Agra (AGR)", "Ahmedabad (AMD)", "Aizawl (AJL)", "Amritsar (ATQ)", "Aurangabad (IXU)",
+            "Bagdogra (IXB)", "Bengaluru (BLR)", "Bhopal (BHO)", "Bhubaneswar (BBI)", 
+            "Chandigarh (IXC)", "Chennai (MAA)", "Coimbatore (CJB)", 
+            "Dehradun (DED)", "Delhi (DEL)", "Dibrugarh (DIB)", "Dimapur (DMU)", "Dubai (DXB)",
+            "Gaya (GAY)", "Goa (GOI)", "Guwahati (GAU)", 
+            "Hyderabad (HYD)", 
+            "Imphal (IMF)", "Indore (IDR)", 
+            "Jaipur (JAI)", "Jammu (IXJ)", "Jodhpur (JDH)", 
+            "Kanpur (KNU)", "Kochi (COK)", "Kolkata (CCU)", "Kozhikode (CCJ)", 
+            "Leh (IXL)", "London Heathrow (LHR)", "Lucknow (LKO)", 
+            "Madurai (IXM)", "Mangaluru (IXE)", "Mumbai (BOM)", 
+            "Nagpur (NAG)", "New York (JFK)",
+            "Patna (PAT)", "Port Blair (IXZ)", "Pune (PNQ)", 
+            "Raipur (RPR)", "Ranchi (IXR)", 
+            "San Francisco (SFO)", "Singapore (SIN)", "Srinagar (SXR)", "Surat (STV)", 
+            "Thiruvananthapuram (TRV)", "Tiruchirappalli (TRZ)", "Tirupati (TIR)", 
+            "Udaipur (UDR)", 
+            "Vadodara (BDQ)", "Varanasi (VNS)", "Vijayawada (VGA)", "Visakhapatnam (VTZ)"
+        ];
 
-            // Simulate network delay
-            setTimeout(() => {
-                const fakeAddress = "0x71C...39A2";
-                status.innerText = `Connected: ${fakeAddress}`;
-                status.style.color = "#10b981"; // Green
-                btn.style.display = 'none';
-                
-                // Show form with animation
-                const form = document.getElementById('ticketForm');
-                form.style.display = 'block';
-                form.style.animation = "slideUp 0.3s ease-out";
-            }, 1000);
+        // Populate Datalist
+        const datalist = document.getElementById('airports');
+        airportList.forEach(apt => {
+            const option = document.createElement('option');
+            option.value = apt;
+            datalist.appendChild(option);
+        });
+
+        function getCityCode(str) {
+            const match = str.match(/\(([A-Z]{3})\)/);
+            return match ? match[1] : str.substring(0,3).toUpperCase();
         }
 
-        document.getElementById('ticketForm').addEventListener('submit', async (e) => {
+        function getCityName(str) {
+            return str.split('(')[0].trim();
+        }
+
+        function swapLocations() {
+            const from = document.getElementById('fromLoc');
+            const to = document.getElementById('toLoc');
+            
+            // Animation for visual feedback
+            const btn = document.querySelector('.swap-btn');
+            btn.style.transform = "rotate(180deg)";
+            setTimeout(() => btn.style.transform = "rotate(0deg)", 300);
+
+            const temp = from.value;
+            from.value = to.value;
+            to.value = temp;
+        }
+
+        // --- 1. Wallet Simulation ---
+        function connectWallet() {
+            const btn = document.getElementById('connectBtn');
+            const status = document.getElementById('walletStatus');
+
+            btn.disabled = true;
+            btn.innerHTML = '<div class="spinner"></div> Connecting...';
+
+            setTimeout(() => {
+                const mockAddress = "0x71...39A2";
+                status.innerHTML = `<div style="width: 8px; height: 8px; background: currentColor; border-radius: 50%;"></div> Connected: ${mockAddress}`;
+                status.classList.add('connected');
+                
+                // Animate section removal
+                btn.parentElement.style.display = 'none';
+                
+                // Show Form
+                const form = document.getElementById('bookingForm');
+                form.style.display = 'block';
+                
+                // Set the minimum date to today immediately when form is shown
+                const dateInput = document.getElementById('date');
+                
+                // Local date string for min attribute (YYYY-MM-DD)
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                const todayStr = `${year}-${month}-${day}`;
+                
+                dateInput.setAttribute('min', todayStr);
+                
+            }, 1200);
+        }
+
+        // --- 2. Input Validation Logic ---
+        const validations = {
+            name: (val) => val.length >= 3 && /^[a-zA-Z\s]*$/.test(val),
+            aadhaar: (val) => {
+                const cleanVal = val.replace(/\s/g, '');
+                // Simplified Check: Just checks if it has 12 digits
+                return /^\d{12}$/.test(cleanVal);
+            },
+            passport: (val) => /^[A-Z][0-9]{7}$/.test(val),
+            location: (val) => val.length >= 3,
+            date: (val) => {
+                if(!val) return false;
+                
+                // Create date from input parts to ensure local time interpretation
+                const parts = val.split('-');
+                if(parts.length !== 3) return false;
+                
+                const y = parseInt(parts[0], 10);
+                const m = parseInt(parts[1], 10) - 1; // Month is 0-indexed
+                const d = parseInt(parts[2], 10);
+                
+                const inputDate = new Date(y, m, d); // Local midnight
+                
+                const today = new Date();
+                today.setHours(0,0,0,0); // Local midnight today
+                
+                return inputDate >= today;
+            }
+        };
+
+        function setFieldStatus(id, isValid) {
+            const input = document.getElementById(id);
+            const errorDiv = document.getElementById(`err-${id.replace('Loc','')}`); 
+            
+            if (isValid) {
+                input.classList.remove('error');
+                input.classList.add('success');
+                if(errorDiv) errorDiv.style.display = 'none';
+            } else {
+                input.classList.remove('success');
+                input.classList.add('error');
+                if(errorDiv) errorDiv.style.display = 'block';
+            }
+            return isValid;
+        }
+
+        // --- 3. Main Form Handling ---
+        document.getElementById('bookingForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            // Check if we are in "Book Another" mode
+            if (isBookingComplete) {
+                resetForm();
+                return;
+            }
+
+            const name = document.getElementById('name').value.trim();
+            const aadhaar = document.getElementById('aadhaar').value.trim();
+            const passport = document.getElementById('passport').value.trim();
+            const from = document.getElementById('fromLoc').value.trim();
+            const to = document.getElementById('toLoc').value.trim();
+            const date = document.getElementById('date').value;
+
+            // Reset generic name error message
+            document.getElementById('err-name').innerText = "Name must be at least 3 characters.";
+            document.getElementById('err-aadhaar').innerText = "Invalid Format (12 Digits).";
+            document.getElementById('err-passport').innerText = "Invalid Format.";
+
+            // B. Run Validations
+            let isValid = true;
+            isValid = setFieldStatus('name', validations.name(name)) && isValid;
+            isValid = setFieldStatus('aadhaar', validations.aadhaar(aadhaar)) && isValid;
+            isValid = setFieldStatus('passport', validations.passport(passport)) && isValid;
+            isValid = setFieldStatus('fromLoc', validations.location(from)) && isValid;
+            isValid = setFieldStatus('toLoc', validations.location(to)) && isValid;
+            isValid = setFieldStatus('date', validations.date(date)) && isValid;
+
+            // Check: From != To
+            if (from.toLowerCase() === to.toLowerCase() && from !== "") {
+                setFieldStatus('toLoc', false);
+                document.getElementById('err-to').innerText = "Dest cannot be same as Origin";
+                document.getElementById('err-to').style.display = 'block';
+                isValid = false;
+            }
+
+            // Check: Duplicate Name
+            if (validations.name(name)) {
+                if (bookedPassengers.has(name.toLowerCase())) {
+                    setFieldStatus('name', false);
+                    document.getElementById('err-name').innerText = "Ticket already booked for this passenger.";
+                    document.getElementById('err-name').style.display = 'block';
+                    isValid = false;
+                }
+            }
+
+            // Check: Duplicate Aadhaar
+            const cleanAadhaarCheck = aadhaar.replace(/\s/g, '');
+            if (validations.aadhaar(aadhaar)) {
+                if (bookedAadhaar.has(cleanAadhaarCheck)) {
+                    setFieldStatus('aadhaar', false);
+                    document.getElementById('err-aadhaar').innerText = "This Aadhaar is already used.";
+                    document.getElementById('err-aadhaar').style.display = 'block';
+                    isValid = false;
+                }
+            }
+
+            // Check: Duplicate Passport
+            if (validations.passport(passport)) {
+                if (bookedPassport.has(passport)) {
+                    setFieldStatus('passport', false);
+                    document.getElementById('err-passport').innerText = "This Passport is already used.";
+                    document.getElementById('err-passport').style.display = 'block';
+                    isValid = false;
+                }
+            }
+
+            if (!isValid) return; 
+
+            // C. Start Blockchain Simulation
             const btn = document.getElementById('mintBtn');
             const originalText = btn.innerHTML;
             
-            // Get Values
-            const name = document.getElementById('pName').value;
-            const aadhaar = document.getElementById('pAadhaar').value;
-            const fromLoc = document.getElementById('pFrom').value;
-            const toLoc = document.getElementById('pTo').value;
-            const date = document.getElementById('pDate').value;
-            
-            // 1. Simulate Signing
-            btn.innerHTML = '<span class="spinner"></span> Signing Transaction...';
             btn.disabled = true;
-
+            btn.innerHTML = '<div class="spinner"></div> Signing...';
             await wait(1500);
 
-            // 2. Simulate Mining
-            btn.innerHTML = '<span class="spinner"></span> Mining Block...';
-            
+            btn.innerHTML = '<div class="spinner"></div> Mining Block...';
             await wait(2000);
 
-            // 3. Generate Fake Hash based on input (Mocking Solidity keccak256)
             const timestamp = new Date().getTime();
-            const mockHash = generateMockHash(name + aadhaar + fromLoc + toLoc + timestamp);
+            const cleanAadhaar = aadhaar.replace(/\s/g, '');
+            const mockHash = generateMockHash(name + cleanAadhaar + timestamp);
 
-            // 4. Show Receipt
-            document.getElementById('receipt').style.display = 'block';
+            // Add to Sets
+            bookedPassengers.add(name.toLowerCase());
+            bookedAadhaar.add(cleanAadhaar);
+            bookedPassport.add(passport);
+
+            // Populate Receipt
+            document.getElementById('rFromCode').innerText = getCityCode(from);
+            document.getElementById('rFromName').innerText = getCityName(from);
+            document.getElementById('rToCode').innerText = getCityCode(to);
+            document.getElementById('rToName').innerText = getCityName(to);
             document.getElementById('rName').innerText = name;
-            document.getElementById('rFrom').innerText = fromLoc;
-            document.getElementById('rTo').innerText = toLoc;
             document.getElementById('rDate').innerText = date;
             document.getElementById('rHash').innerText = mockHash;
 
-            btn.innerHTML = "Ticket generated!";
+            const receipt = document.getElementById('receipt');
+            receipt.style.display = 'block';
+            receipt.scrollIntoView({behavior: 'smooth'});
+            
+            // Change Button State to "Book Another"
+            btn.innerHTML = '<i class="ph-bold ph-plus-circle"></i> Book Another Ticket';
+            btn.classList.add('btn-secondary'); // Change styling if you have that class, or keep primary
             btn.disabled = false;
+            isBookingComplete = true;
         });
-
-        // Helper to pause execution
-        function wait(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
+        
+        function resetForm() {
+            const form = document.getElementById('bookingForm');
+            form.reset();
+            
+            // Remove validation classes
+            const inputs = form.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.classList.remove('success', 'error');
+            });
+            
+            // Hide error messages
+            const errors = form.querySelectorAll('.error-msg');
+            errors.forEach(err => err.style.display = 'none');
+            
+            // Hide Receipt
+            document.getElementById('receipt').style.display = 'none';
+            
+            // Reset Button
+            const btn = document.getElementById('mintBtn');
+            btn.innerHTML = '<i class="ph ph-ticket" style="font-size: 1.2rem;"></i> Mint Ticket on Blockchain';
+            btn.classList.remove('btn-secondary');
+            
+            // Reset State
+            isBookingComplete = false;
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Helper to generate a hex string that LOOKS like a blockchain hash
+        document.getElementById('passport').addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
+        });
+
+        document.getElementById('aadhaar').addEventListener('input', function(e) {
+            let rawValue = this.value.replace(/\D/g, '');
+            if (rawValue.length > 12) rawValue = rawValue.substring(0, 12);
+            let formattedValue = '';
+            for (let i = 0; i < rawValue.length; i++) {
+                if (i > 0 && i % 4 === 0) formattedValue += ' ';
+                formattedValue += rawValue[i];
+            }
+            this.value = formattedValue;
+        });
+
+        function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+        
         function generateMockHash(seed) {
-            // Simple JS implementation to make it look random but consistent
             let hash = "0x";
             const chars = "0123456789abcdef";
-            
-            // Generate 64 hex characters (32 bytes)
             for (let i = 0; i < 64; i++) {
                 hash += chars[Math.floor(Math.random() * 16)];
             }
