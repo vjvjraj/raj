@@ -550,7 +550,7 @@
                     <input type="date" id="date" placeholder=" " required>
                     <label for="date">Date of Journey</label>
                 </div>
-                <div class="error-msg" id="err-date">Invalid Date.</div>
+                <div class="error-msg" id="err-date">Date cannot be in the past.</div>
             </div>
 
             <button type="submit" id="mintBtn" class="btn btn-primary">
@@ -690,15 +690,7 @@
                 
                 // Set the minimum date to today immediately when form is shown
                 const dateInput = document.getElementById('date');
-                
-                // Local date string for min attribute (YYYY-MM-DD)
-                const today = new Date();
-                const year = today.getFullYear();
-                const month = String(today.getMonth() + 1).padStart(2, '0');
-                const day = String(today.getDate()).padStart(2, '0');
-                const todayStr = `${year}-${month}-${day}`;
-                
-                dateInput.setAttribute('min', todayStr);
+                // The min attribute is purposefully NOT set here to allow calendar to show past dates
                 
             }, 1200);
         }
